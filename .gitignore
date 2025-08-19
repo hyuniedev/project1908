@@ -97,3 +97,10 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Android plugin module
+/stt_tts_plugin/.gradle/
+/stt_tts_plugin/build/
+/stt_tts_plugin/.idea/
+/stt_tts_plugin/local.properties
+/stt_tts_plugin/captures/
