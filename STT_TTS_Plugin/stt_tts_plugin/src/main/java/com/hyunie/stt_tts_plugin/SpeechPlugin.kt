@@ -33,23 +33,18 @@ class SpeechPlugin {
                 
                 stt?.setRecognitionListener(object : RecognitionListener {
                     override fun onReadyForSpeech(p0: Bundle?) {
-                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onReadyForSpeech")
                     }
 
                     override fun onBeginningOfSpeech() {
-                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onBeginningOfSpeech")
                     }
 
                     override fun onRmsChanged(p0: Float) {
-                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onRmsChanged")
                     }
 
                     override fun onBufferReceived(p0: ByteArray?) {
-                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onBufferReceived")
                     }
 
                     override fun onEndOfSpeech() {
-                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onEndOfSpeech")
                     }
 
                     override fun onError(error: Int) {
@@ -70,11 +65,9 @@ class SpeechPlugin {
                     }
 
                     override fun onPartialResults(p0: Bundle?) {
-                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onPartialResults")
                     }
 
                     override fun onEvent(p0: Int, p1: Bundle?) {
-                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onEvent")
                     }
                 })
 
@@ -98,6 +91,7 @@ class SpeechPlugin {
                                 onGetNotificationCallback,
                                 "TTS_Ready"
                             )
+                            speak("Xin chào!")
                         }
                     }
                 }
@@ -142,18 +136,6 @@ class SpeechPlugin {
                 // Make STT more responsive
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-                putExtra(
-                    RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-                    600
-                )
-                putExtra(
-                    RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
-                    600
-                )
-                putExtra(
-                    RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,
-                    800
-                )
             }
 
             activity.runOnUiThread {

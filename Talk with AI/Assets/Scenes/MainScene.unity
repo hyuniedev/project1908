@@ -174,7 +174,7 @@ GameObject:
   - component: {fileID: 219036382}
   - component: {fileID: 219036381}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: BrainManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -194,7 +194,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resultTxt: {fileID: 1921758233}
   debugTxt: {fileID: 1420546740}
-  microphoneChangeStateBtn: {fileID: 1929640247}
+  stopSpeakingBtn: {fileID: 1929640247}
 --- !u!4 &219036382
 Transform:
   m_ObjectHideFlags: 0

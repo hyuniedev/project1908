@@ -10,19 +10,23 @@ namespace Manager
     {
         [SerializeField] private Text resultTxt;
         [SerializeField] private Text debugTxt;
-        [SerializeField] private Button microphoneChangeStateBtn;
+        [SerializeField] private Button stopSpeakingBtn;
         private SpeechConnection _speechController;
         private AIModel _aiModel;
 
-        private bool _microphoneState = false;
         void Start()
         {
             StartCoroutine(Initialize());
-            microphoneChangeStateBtn.onClick.AddListener(ChangeMicrophoneState);
+            stopSpeakingBtn.onClick.AddListener(() =>
+            {
+                _speechController.StopSpeaking();
+                _speechController.StartListening();
+            });
         }
 
         private IEnumerator Initialize()
         {
+            resultTxt.text = "Hãy nói gì đó...";
             while (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission
                        .Microphone))
             {
@@ -34,25 +38,6 @@ namespace Manager
                 ttsCompletedCallback: nameof(TTSCompletedCallback), 
                 onNotificationCallback: nameof(OnGetNotification));
             _aiModel = new AIModel();
-            resultTxt.text = "Khởi tạo thành công";
-            yield return null;
-            _speechController.Speak("Xin chào, tôi có thể giúp gì cho bạn?");
-        }
-
-        private void ChangeMicrophoneState()
-        {
-            _microphoneState = !_microphoneState;
-            if (_microphoneState)
-            {
-                microphoneChangeStateBtn.GetComponent<Image>().color = Color.green;
-                _speechController.StopSpeaking();
-                _speechController.StartListening();
-            }
-            else
-            {
-                microphoneChangeStateBtn.GetComponent<Image>().color = Color.grey;
-                _speechController.StopListening();
-            }
         }
         
         private void STTCompletedCallback(string result)
@@ -63,7 +48,8 @@ namespace Manager
 
         private void TTSCompletedCallback(string result)
         {
-            
+            debugTxt.text = "Hãy nói gì đó!";
+            _speechController.StartListening();
         }
         
         public void OnGetNotification(string notify)

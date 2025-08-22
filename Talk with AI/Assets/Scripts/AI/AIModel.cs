@@ -13,12 +13,11 @@ namespace AI
 
         public IEnumerator RequestHandle(string message, Action<string> callback)
         {
-            callback.Invoke("Bắt đầu gửi rì quét");
             ChatRequest chatRequest = new ChatRequest
             {
                 model = _apiKey.model,
                 messages = new[] { new Message { role = "user", content = message } },
-                max_tokens = 200
+                max_tokens = 512
             };
             string jsonString = JsonUtility.ToJson(chatRequest);
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonString);
