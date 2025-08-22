@@ -3,12 +3,12 @@ using System.Collections;
 
 namespace Speech
 {
-    public class SpeechConnection : MonoBehaviour
+    public class SpeechConnection
     {
         public string languageCode = "vi-VN";
         private AndroidJavaClass pluginClass;
 
-        public void Initialize()
+        public SpeechConnection()
         {
             using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
@@ -33,38 +33,14 @@ namespace Speech
         #endregion
 
         #region STT
-
-        public void StartListening(string gameobject, string callback)
+        public void StartListening(string gameObjectName ,string callback)
         {
-            if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Microphone))
-            {
-                UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.Microphone);
-                StartCoroutine(WaitForPermissionThenListen(gameobject,callback));
-            }
-            else
-            {
-                CallStartListening(gameobject, callback);
-            }
-        }
-
-        private IEnumerator WaitForPermissionThenListen(string gameobject ,string callback)
-        {
-            while (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Microphone))
-            {
-                yield return null;
-            }
-
-            CallStartListening(gameobject, callback);
-        }
-
-        private void CallStartListening(string gameobject ,string callback)
-        {
-            pluginClass.CallStatic("startListening", gameobject, callback);
+            pluginClass.CallStatic("startListening", gameObjectName, callback);
         }
 
         #endregion
         
-        private void OnDestroy()
+        public void ShutdownSpeech()
         {
             pluginClass.CallStatic("shutdown");
         }

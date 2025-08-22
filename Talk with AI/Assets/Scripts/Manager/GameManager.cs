@@ -1,7 +1,5 @@
-using System;
-using Config;
+using AI;
 using Speech;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,39 +7,35 @@ namespace Manager
 {
     public class GameManager : MonoBehaviour
     {
-        [SerializeField]
-        private GameObject addressAsset;
-
         [SerializeField] private Text resultTxt;
 
         [SerializeField] private Text debugTxt;
         
-        private SpeechConnection speechConnection;
-
+        private SpeechConnection speechController;
+        private AIModel aiModel;
         void Start()
         {
-            Initialize();
-            speechConnection.Initialize();
-            speechConnection.Speak("Xin chào, vui lòng nói gì đó");
-            speechConnection.StartListening(gameObject.name, nameof(SttResultCallback));
+            speechController = new SpeechConnection();
+            aiModel = new AIModel();
+            
+            speechController.StartListening(gameObject.name, nameof(ListenCompletedCallback));
         }
 
-        private void Initialize()
-        {
-            speechConnection = Instantiate(addressAsset).GetComponent<SpeechConnection>();;
-            debugTxt.text = "Good";
-        }
-
-        private void SttResultCallback(string result)
+        private void ListenCompletedCallback(string result)
         {
             resultTxt.text = result;
-            speechConnection.Speak("Tôi nghe thấy: " + result);
-            speechConnection.StartListening(gameObject.name, nameof(SttResultCallback));
+            StartCoroutine(aiModel.Request(result, speechController.Speak));
+            speechController.StartListening(gameObject.name, nameof(ListenCompletedCallback));
         }
         
         public void OnGetNotification(string notify)
         {
             debugTxt.text = notify;
+        }
+
+        private void OnDestroy()
+        {
+            speechController.ShutdownSpeech();
         }
     }
 }

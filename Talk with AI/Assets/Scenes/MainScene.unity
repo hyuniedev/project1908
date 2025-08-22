@@ -119,6 +119,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &116422582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 116422584}
+  - component: {fileID: 116422583}
+  m_Layer: 0
+  m_Name: Check Mic Permission
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &116422583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116422582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6be4f68d7c66297408055c325d0939df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &116422584
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116422582}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &219036380
 GameObject:
   m_ObjectHideFlags: 0
@@ -148,7 +192,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f62337bab2327df428e50659ac8a6a66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  addressAsset: {fileID: 8780990575815069102, guid: 7c2739624857476468becc0d486a8501, type: 3}
   resultTxt: {fileID: 1921758233}
   debugTxt: {fileID: 1420546740}
 --- !u!4 &219036382
@@ -823,3 +866,4 @@ SceneRoots:
   - {fileID: 219036382}
   - {fileID: 522703216}
   - {fileID: 743987782}
+  - {fileID: 116422584}
