@@ -120,6 +120,7 @@ class SpeechPlugin {
                                 )
                             }
 
+                            @Deprecated("Deprecated in Java")
                             override fun onError(utteranceId: String?) {
                                 UnityPlayer.UnitySendMessage(
                                     currentGameObject,
@@ -127,7 +128,7 @@ class SpeechPlugin {
                                     "TTS_Error: $utteranceId"
                                 )
                             }
-                        })
+                })
             }
         }
 
