@@ -15,17 +15,20 @@ namespace Manager
         private AIModel aiModel;
         void Start()
         {
-            speechController = new SpeechConnection();
+            speechController = new SpeechConnection(gameObject.name, nameof(STTCompletedCallback), nameof(TTSCompletedCallback));
             aiModel = new AIModel();
-            
-            speechController.StartListening(gameObject.name, nameof(ListenCompletedCallback));
+            speechController.StartListening();
         }
 
-        private void ListenCompletedCallback(string result)
+        private void STTCompletedCallback(string result)
         {
             resultTxt.text = result;
             StartCoroutine(aiModel.Request(result, speechController.Speak));
-            speechController.StartListening(gameObject.name, nameof(ListenCompletedCallback));
+        }
+
+        private void TTSCompletedCallback(string _)
+        {
+            speechController.StartListening();
         }
         
         public void OnGetNotification(string notify)

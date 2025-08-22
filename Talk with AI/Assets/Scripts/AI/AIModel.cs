@@ -9,12 +9,7 @@ namespace AI
 {
     public class AIModel
     {
-        private ApiConfig _apiKey;
-        
-        public AIModel()
-        {
-            _apiKey = ConfigLoader.GetApiConfig();
-        }
+        private ApiConfig _apiKey = ConfigLoader.GetApiConfig();
 
         public IEnumerator Request(string message, Action<string> callback)
         {
@@ -22,7 +17,7 @@ namespace AI
             {
                 model = _apiKey.model,
                 messages = new[] { new Message { role = "user", content = message } },
-                max_tokens = 500
+                max_tokens = 50
             };
             string jsonString = JsonUtility.ToJson(chatRequest);
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonString);

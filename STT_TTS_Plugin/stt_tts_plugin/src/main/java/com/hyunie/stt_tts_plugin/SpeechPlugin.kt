@@ -8,6 +8,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import com.unity3d.player.UnityPlayer
 import java.util.Locale
 
@@ -18,16 +19,63 @@ class SpeechPlugin {
         private var stt: SpeechRecognizer? = null
         private var tts: TextToSpeech? = null
         private var localCode: String = "vi-VN"
-        private var notifyControllerGameObject: String = ""
+        private var currentGameObject: String = ""
 
         @JvmStatic
-        fun init(activity: Activity, notifyGO: String, localCode: String? = null) {
+        fun init(activity: Activity, currentGameObject: String, sttCompletedCallback: String, ttsCompletedCallback: String, onGetNotificationCallback: string, localCode: String? = null) {
             unityActivity = activity
-            notifyControllerGameObject = notifyGO
             this.localCode = localCode ?: this.localCode
+            this.currentGameObject = currentGameObject
 
             activity.runOnUiThread {
                 stt = SpeechRecognizer.createSpeechRecognizer(activity)
+                
+                stt?.setRecognitionListener(object : RecognitionListener {
+                    override fun onReadyForSpeech(p0: Bundle?) {
+                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onReadyForSpeech")
+                    }
+
+                    override fun onBeginningOfSpeech() {
+                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onBeginningOfSpeech")
+                    }
+
+                    override fun onRmsChanged(p0: Float) {
+                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onRmsChanged")
+                    }
+
+                    override fun onBufferReceived(p0: ByteArray?) {
+                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onBufferReceived")
+                    }
+
+                    override fun onEndOfSpeech() {
+                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onEndOfSpeech")
+                    }
+
+                    override fun onError(error: Int) {
+                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "Error: $error")
+                    }
+
+                    override fun onResults(result: Bundle?) {
+                        val matches = result?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        if (!matches.isNullOrEmpty()) {
+                            val text = matches[0]
+                            UnityPlayer.UnitySendMessage(currentGameObject, sttCompletedCallback, text)
+                            UnityPlayer.UnitySendMessage(
+                                currentGameObject,
+                                onGetNotificationCallback,
+                                "onResults $text"
+                            )
+                        }
+                    }
+
+                    override fun onPartialResults(p0: Bundle?) {
+                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onPartialResults")
+                    }
+
+                    override fun onEvent(p0: Int, p1: Bundle?) {
+                        UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "onEvent")
+                    }
+                })
 
                 tts = TextToSpeech(activity) { status ->
                     if (status == TextToSpeech.SUCCESS) {
@@ -35,18 +83,46 @@ class SpeechPlugin {
                         val result = tts?.setLanguage(locale)
                         if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                             UnityPlayer.UnitySendMessage(
-                                notifyControllerGameObject,
-                                "OnGetNotification",
+                                currentGameObject,
+                                onGetNotificationCallback,
                                 "Language not supported"
                             )
                         }
                     }
                 }
+
+                tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                            override fun onStart(utteranceId: String?) {
+                                UnityPlayer.UnitySendMessage()
+                                UnityPlayer.UnitySendMessage(
+                                    currentGameObject,
+                                    onGetNotificationCallback,
+                                    "TTS_Started: $utteranceId"
+                                )
+                            }
+
+                            override fun onDone(utteranceId: String?) {
+                                UnityPlayer.UnitySendMessage(currentGameObject, ttsCompletedCallback, utteranceId`)
+                                UnityPlayer.UnitySendMessage(
+                                    currentGameObject,
+                                    onGetNotificationCallback,
+                                    "TTS_Completed: $utteranceId"
+                                )
+                            }
+
+                            override fun onError(utteranceId: String?) {
+                                UnityPlayer.UnitySendMessage(
+                                    currentGameObject,
+                                    onGetNotificationCallback,
+                                    "TTS_Error: $utteranceId"
+                                )
+                            }
+                        })
             }
         }
 
         @JvmStatic
-        fun startListening(gameObject: String, callback: String) {
+        fun startListening() {
             val activity = unityActivity ?: return
 
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -55,53 +131,6 @@ class SpeechPlugin {
             }
 
             activity.runOnUiThread {
-                stt?.setRecognitionListener(object : RecognitionListener {
-                    override fun onReadyForSpeech(p0: Bundle?) {
-                        UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "onReadyForSpeech")
-                    }
-
-                    override fun onBeginningOfSpeech() {
-                        UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "onBeginningOfSpeech")
-                    }
-
-                    override fun onRmsChanged(p0: Float) {
-                        UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "onRmsChanged")
-                    }
-
-                    override fun onBufferReceived(p0: ByteArray?) {
-                        UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "onBufferReceived")
-                    }
-
-                    override fun onEndOfSpeech() {
-                        UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "onEndOfSpeech")
-                    }
-
-                    override fun onError(error: Int) {
-                        UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "Error: $error")
-                    }
-
-                    override fun onResults(result: Bundle?) {
-                        val matches = result?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                        if (!matches.isNullOrEmpty()) {
-                            val text = matches[0]
-                            UnityPlayer.UnitySendMessage(gameObject, callback, text)
-                            UnityPlayer.UnitySendMessage(
-                                notifyControllerGameObject,
-                                "OnGetNotification",
-                                "onResults $text"
-                            )
-                        }
-                    }
-
-                    override fun onPartialResults(p0: Bundle?) {
-                        UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "onPartialResults")
-                    }
-
-                    override fun onEvent(p0: Int, p1: Bundle?) {
-                        UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "onEvent")
-                    }
-                })
-
                 stt?.startListening(intent)
             }
         }
@@ -110,8 +139,12 @@ class SpeechPlugin {
         fun speak(text: String) {
             val activity = unityActivity ?: return
             activity.runOnUiThread {
-                tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-                UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "speaking: $text")
+                val utteranceId = "utterance_${System.currentTimeMillis()}"
+                val params = Bundle().apply {
+                    putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+                }
+                tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
+                UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "speaking: $text")
             }
         }
 
@@ -120,7 +153,7 @@ class SpeechPlugin {
             val activity = unityActivity ?: return
             activity.runOnUiThread {
                 tts?.stop()
-                UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "Stop speak")
+                UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "Stop speak")
             }
         }
 
@@ -133,7 +166,7 @@ class SpeechPlugin {
                 tts = null
                 stt = null
                 unityActivity = null
-                UnityPlayer.UnitySendMessage(notifyControllerGameObject, "OnGetNotification", "Shutdown")
+                UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "Shutdown")
             }
         }
     }

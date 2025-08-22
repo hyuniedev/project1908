@@ -7,14 +7,15 @@ namespace Speech
     {
         public string languageCode = "vi-VN";
         private AndroidJavaClass pluginClass;
-
-        public SpeechConnection()
-        {
+        private string _gameObjectName;
+        public SpeechConnection(string gameObjectName, string sttCompletedCallback, string ttsCompletedCallback)
+        { 
+            _gameObjectName = gameObjectName;
             using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
                 AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
                 pluginClass = new AndroidJavaClass("com.hyunie.stt_tts_plugin.SpeechPlugin");
-                pluginClass.CallStatic("init", currentActivity, "GameManager", languageCode);
+                pluginClass.CallStatic("init", currentActivity, gameObjectName, sttCompletedCallback, ttsCompletedCallback ,languageCode);
             }
         }
         
@@ -33,9 +34,9 @@ namespace Speech
         #endregion
 
         #region STT
-        public void StartListening(string gameObjectName ,string callback)
+        public void StartListening()
         {
-            pluginClass.CallStatic("startListening", gameObjectName, callback);
+            pluginClass.CallStatic("startListening", _gameObjectName);
         }
 
         #endregion
