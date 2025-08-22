@@ -11,7 +11,7 @@ namespace Config
         public string model;
     }
 
-    public class ConfigLoader
+    public static class ConfigLoader
     {
         private static readonly string apiConfigName = "api_config";
         public static ApiConfig GetApiConfig()

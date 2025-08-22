@@ -37,6 +37,11 @@ namespace Speech
             pluginClass.CallStatic("startListening");
         }
 
+        public void StopListening()
+        {
+            pluginClass.CallStatic("stopListening");
+        }
+        
         #endregion
         
         public void ShutdownSpeech()

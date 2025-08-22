@@ -18,6 +18,7 @@ class SpeechPlugin {
         private var unityActivity: Activity? = null
         private var stt: SpeechRecognizer? = null
         private var tts: TextToSpeech? = null
+        private var isTtsReady: Boolean = false
         private var localCode: String = "vi-VN"
         private var currentGameObject: String = ""
 
@@ -87,6 +88,16 @@ class SpeechPlugin {
                                 onGetNotificationCallback,
                                 "Language not supported"
                             )
+                        } else {
+                            // Configure TTS defaults for responsiveness
+                            tts?.setSpeechRate(1.0f)
+                            tts?.setPitch(1.5f)
+                            isTtsReady = true
+                            UnityPlayer.UnitySendMessage(
+                                currentGameObject,
+                                onGetNotificationCallback,
+                                "TTS_Ready"
+                            )
                         }
                     }
                 }
@@ -127,6 +138,21 @@ class SpeechPlugin {
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, localCode)
+                // Make STT more responsive
+                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                    600
+                )
+                putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+                    600
+                )
+                putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,
+                    800
+                )
             }
 
             activity.runOnUiThread {
@@ -135,9 +161,17 @@ class SpeechPlugin {
         }
 
         @JvmStatic
+        fun stopListening() {
+            unityActivity?.runOnUiThread {
+                stt?.stopListening()
+            }
+        }
+
+        @JvmStatic
         fun speak(text: String) {
             val activity = unityActivity ?: return
             activity.runOnUiThread {
+                if (!isTtsReady) return@runOnUiThread
                 val utteranceId = "utterance_${System.currentTimeMillis()}"
                 val params = Bundle().apply {
                     putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
@@ -162,6 +196,7 @@ class SpeechPlugin {
                 stt?.destroy()
                 tts = null
                 stt = null
+                isTtsReady = false
                 unityActivity = null
             }
         }

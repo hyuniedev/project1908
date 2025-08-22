@@ -9,15 +9,16 @@ namespace AI
 {
     public class AIModel
     {
-        private ApiConfig _apiKey = ConfigLoader.GetApiConfig();
+        private readonly ApiConfig _apiKey = ConfigLoader.GetApiConfig();
 
-        public IEnumerator Request(string message, Action<string> callback)
+        public IEnumerator RequestHandle(string message, Action<string> callback)
         {
+            callback.Invoke("Bắt đầu gửi rì quét");
             ChatRequest chatRequest = new ChatRequest
             {
                 model = _apiKey.model,
                 messages = new[] { new Message { role = "user", content = message } },
-                max_tokens = 50
+                max_tokens = 200
             };
             string jsonString = JsonUtility.ToJson(chatRequest);
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonString);
@@ -33,10 +34,11 @@ namespace AI
             {
                 ChatResponse response = JsonUtility.FromJson<ChatResponse>(uwr.downloadHandler.text);
                 string answer = response.choices[0].message.content;
-                callback(answer);
+                callback.Invoke(answer);
             }
             else
             {
+                callback.Invoke("Lỗi rồi mày ơi! Lỗi: " + uwr.error);
                 Debug.LogError($"Error: {uwr.error}");
             }
         }
