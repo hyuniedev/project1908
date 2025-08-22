@@ -22,7 +22,7 @@ class SpeechPlugin {
         private var currentGameObject: String = ""
 
         @JvmStatic
-        fun init(activity: Activity, currentGameObject: String, sttCompletedCallback: String, ttsCompletedCallback: String, onGetNotificationCallback: string, localCode: String? = null) {
+        fun init(activity: Activity, currentGameObject: String, sttCompletedCallback: String, ttsCompletedCallback: String, onGetNotificationCallback: String, localCode: String? = null) {
             unityActivity = activity
             this.localCode = localCode ?: this.localCode
             this.currentGameObject = currentGameObject
@@ -93,7 +93,6 @@ class SpeechPlugin {
 
                 tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                             override fun onStart(utteranceId: String?) {
-                                UnityPlayer.UnitySendMessage()
                                 UnityPlayer.UnitySendMessage(
                                     currentGameObject,
                                     onGetNotificationCallback,
@@ -102,7 +101,7 @@ class SpeechPlugin {
                             }
 
                             override fun onDone(utteranceId: String?) {
-                                UnityPlayer.UnitySendMessage(currentGameObject, ttsCompletedCallback, utteranceId`)
+                                UnityPlayer.UnitySendMessage(currentGameObject, ttsCompletedCallback, utteranceId)
                                 UnityPlayer.UnitySendMessage(
                                     currentGameObject,
                                     onGetNotificationCallback,
@@ -144,7 +143,6 @@ class SpeechPlugin {
                     putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
                 }
                 tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
-                UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "speaking: $text")
             }
         }
 
@@ -153,7 +151,6 @@ class SpeechPlugin {
             val activity = unityActivity ?: return
             activity.runOnUiThread {
                 tts?.stop()
-                UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "Stop speak")
             }
         }
 
@@ -166,7 +163,6 @@ class SpeechPlugin {
                 tts = null
                 stt = null
                 unityActivity = null
-                UnityPlayer.UnitySendMessage(currentGameObject, onGetNotificationCallback, "Shutdown")
             }
         }
     }

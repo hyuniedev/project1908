@@ -31,7 +31,7 @@ namespace Manager
                 {
                     Debug.LogWarning("User denied Microphone permission.");
                     permissionRequested = false;
-                    Application.Quit();
+                    // Application.Quit();
                 }
             }
         }

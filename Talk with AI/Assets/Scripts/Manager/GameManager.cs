@@ -15,7 +15,7 @@ namespace Manager
         private AIModel aiModel;
         void Start()
         {
-            speechController = new SpeechConnection(gameObject.name, nameof(STTCompletedCallback), nameof(TTSCompletedCallback));
+            speechController = new SpeechConnection(gameObject.name, nameof(STTCompletedCallback), nameof(TTSCompletedCallback), nameof(OnGetNotification));
             aiModel = new AIModel();
             speechController.StartListening();
         }
