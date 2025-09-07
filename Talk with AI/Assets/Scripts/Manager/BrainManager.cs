@@ -11,7 +11,7 @@ namespace Manager
         [SerializeField] private Text resultTxt;
         [SerializeField] private Text debugTxt;
         [SerializeField] private Button stopSpeakingBtn;
-        private SpeechConnection _speechController;
+        private ICommunication _communication;
         private AIModel _aiModel;
 
         void Start()
@@ -19,8 +19,8 @@ namespace Manager
             StartCoroutine(Initialize());
             stopSpeakingBtn.onClick.AddListener(() =>
             {
-                _speechController.StopSpeaking();
-                _speechController.StartListening();
+                _communication.StopSpeaking();
+                _communication.StartListening();
             });
         }
 
@@ -32,24 +32,27 @@ namespace Manager
             {
                 yield return null;
             }
-            _speechController = new SpeechConnection(
+
+            _communication = new CommunicationAndroid();
+            _communication.Init(
+                languageCode: "vi-VN",
                 gameObjectName: gameObject.name, 
-                sttCompletedCallback: nameof(STTCompletedCallback), 
-                ttsCompletedCallback: nameof(TTSCompletedCallback), 
-                onNotificationCallback: nameof(OnGetNotification));
+                sttCompletedCallback: STTCompletedCallback, 
+                ttsCompletedCallback: TTSCompletedCallback, 
+                onNotificationCallback: OnGetNotification);
             _aiModel = new AIModel();
         }
         
         private void STTCompletedCallback(string result)
         {
             resultTxt.text = $"Bạn nói: {result}";
-            StartCoroutine(_aiModel.RequestHandle(result, _speechController.Speak));
+            StartCoroutine(_aiModel.RequestHandle(result, _communication.Speak));
         }
 
-        private void TTSCompletedCallback(string result)
+        private void TTSCompletedCallback()
         {
             debugTxt.text = "Hãy nói gì đó!";
-            _speechController.StartListening();
+            _communication.StartListening();
         }
         
         public void OnGetNotification(string notify)
@@ -59,7 +62,7 @@ namespace Manager
 
         private void OnDestroy()
         {
-            _speechController.ShutdownSpeech();
+            _communication.ShutDown();
         }
     }
 }

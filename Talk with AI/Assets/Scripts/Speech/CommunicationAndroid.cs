@@ -1,19 +1,27 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
 namespace Speech
 {
-    public class SpeechConnection
+    public class CommunicationAndroid  : ICommunication
     {
-        public string languageCode = "vi-VN";
-        private AndroidJavaClass pluginClass;
-        public SpeechConnection(string gameObjectName, string sttCompletedCallback, string ttsCompletedCallback, string onNotificationCallback)
+        protected AndroidJavaClass pluginClass;
+        public void Init(string languageCode, string gameObjectName, Action<string> sttCompletedCallback, Action ttsCompletedCallback,
+            Action<string> onNotificationCallback)
         { 
             using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
                 AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
                 pluginClass = new AndroidJavaClass("com.hyunie.stt_tts_plugin.SpeechPlugin");
-                pluginClass.CallStatic("init", currentActivity, gameObjectName, sttCompletedCallback, ttsCompletedCallback ,onNotificationCallback,languageCode);
+                pluginClass.CallStatic(
+                    "init", 
+                    currentActivity, 
+                    gameObjectName, 
+                    nameof(sttCompletedCallback), 
+                    nameof(ttsCompletedCallback), 
+                    nameof(onNotificationCallback),
+                    languageCode);
             }
         }
         
@@ -41,10 +49,9 @@ namespace Speech
         {
             pluginClass.CallStatic("stopListening");
         }
-        
+
         #endregion
-        
-        public void ShutdownSpeech()
+        public void ShutDown()
         {
             pluginClass.CallStatic("shutdown");
         }
