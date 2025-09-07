@@ -8,11 +8,8 @@ namespace Manager
 {
     public class BrainManager : MonoBehaviour
     {
-        [SerializeField] private Text resultTxt;
-        [SerializeField] private Text debugTxt;
-        [SerializeField] private Button stopSpeakingBtn;
         private ICommunication _communication;
-        private AIModel _aiModel;
+        private AIConnection _aiConnection;
 
         void Start()
         {
@@ -57,7 +54,6 @@ namespace Manager
         
         public void OnGetNotification(string notify)
         {
-            debugTxt.text = notify;
         }
 
         private void OnDestroy()
