@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace AI
 {
-    public class AIModel
+    public class AIConnection
     {
         private readonly ApiConfig _apiKey = ConfigLoader.GetApiConfig();
 

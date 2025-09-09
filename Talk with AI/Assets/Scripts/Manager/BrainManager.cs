@@ -8,20 +8,15 @@ namespace Manager
 {
     public class BrainManager : MonoBehaviour
     {
+        private AIConnection _aiConnection;
         [SerializeField] private Text resultTxt;
         [SerializeField] private Text debugTxt;
         [SerializeField] private Button stopSpeakingBtn;
         private ICommunication _communication;
-        private AIModel _aiModel;
 
         void Start()
         {
-            StartCoroutine(Initialize());
-            stopSpeakingBtn.onClick.AddListener(() =>
-            {
-                _communication.StopSpeaking();
-                _communication.StartListening();
-            });
+            Initialize();
         }
 
         private IEnumerator Initialize()
@@ -40,13 +35,12 @@ namespace Manager
                 sttCompletedCallback: STTCompletedCallback, 
                 ttsCompletedCallback: TTSCompletedCallback, 
                 onNotificationCallback: OnGetNotification);
-            _aiModel = new AIModel();
+            _aiConnection = new AIConnection();
         }
         
         private void STTCompletedCallback(string result)
         {
-            resultTxt.text = $"Bạn nói: {result}";
-            StartCoroutine(_aiModel.RequestHandle(result, _communication.Speak));
+            StartCoroutine(_aiConnection.RequestHandle(result, _communication.Speak));
         }
 
         private void TTSCompletedCallback()
