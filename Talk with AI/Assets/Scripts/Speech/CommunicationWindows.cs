@@ -1,56 +1,109 @@
 using System;
-using System.Globalization;
-using System.Speech.Synthesis;
-using System.Speech.Recognition;
+using System.Threading.Tasks;
+#if ENABLE_WINMD_SUPPORT && UNITY_WSA
+using Windows.Media.SpeechRecognition;
+using Windows.Media.SpeechSynthesis;
+using Windows.Media.Playback;
+using Windows.Media.Core;
+#endif
 
 namespace Speech
 {
     public class CommunicationWindows : ICommunication
     {
+#if ENABLE_WINMD_SUPPORT && UNITY_WSA
+        private SpeechRecognizer recognizer;
         private SpeechSynthesizer tts;
-        private SpeechRecognitionEngine recognizer;
-        
+        private MediaPlayer mediaPlayer;
+#endif
         private Action<string> onNotificationCallback;
-        
-        public void Init(string languageCode, string gameObjectName, Action<string> sttCompletedCallback, Action ttsCompletedCallback,
+        private Action<string> sttCompletedCallback;
+        private Action ttsCompletedCallback;
+
+        public async void Init(
+            string languageCode,
+            string gameObjectName,
+            Action<string> sttCompletedCallback,
+            Action ttsCompletedCallback,
             Action<string> onNotificationCallback)
         {
+            this.sttCompletedCallback = sttCompletedCallback;
+            this.ttsCompletedCallback = ttsCompletedCallback;
             this.onNotificationCallback = onNotificationCallback;
-            
+
+#if ENABLE_WINMD_SUPPORT && UNITY_WSA
+            recognizer = new SpeechRecognizer();
             tts = new SpeechSynthesizer();
-            tts.SelectVoiceByHints(VoiceGender.Female);
-            tts.SpeakCompleted += (sender, args) => { ttsCompletedCallback(); };
-            
-            recognizer = new SpeechRecognitionEngine(new CultureInfo(languageCode));
-            recognizer.SetInputToDefaultAudioDevice();
-            recognizer.LoadGrammar(new DictationGrammar());
-            recognizer.RecognizeCompleted += (sender, args) => { onNotificationCallback(args.Result.Text); };
+            mediaPlayer = new MediaPlayer();
+
+            // Compile constraints (để trống vẫn OK cho dictation mode)
+            await recognizer.CompileConstraintsAsync();
+#endif
         }
 
-        public void Speak(string text)
+        public async void Speak(string text)
         {
-            tts.SpeakAsync(text);
+#if ENABLE_WINMD_SUPPORT && UNITY_WSA
+            var stream = await tts.SynthesizeTextToStreamAsync(text);
+            mediaPlayer.Source = MediaSource.CreateFromStream(stream, stream.ContentType);
+
+            mediaPlayer.MediaEnded += (s, e) =>
+            {
+                ttsCompletedCallback?.Invoke();
+                onNotificationCallback?.Invoke("TTS completed.");
+            };
+
+            mediaPlayer.Play();
+#else
+            onNotificationCallback?.Invoke("TTS not supported on this platform.");
+#endif
         }
 
         public void StopSpeaking()
         {
-            tts.SpeakAsyncCancelAll();
+#if ENABLE_WINMD_SUPPORT && UNITY_WSA
+            mediaPlayer.Pause();
+            onNotificationCallback?.Invoke("TTS stopped.");
+#endif
         }
 
-        public void StartListening()
+        public async void StartListening()
         {
-            recognizer.RecognizeAsync(RecognizeMode.Single);
+#if ENABLE_WINMD_SUPPORT && UNITY_WSA
+            try
+            {
+                var result = await recognizer.RecognizeAsync();
+
+                if (result.Status == SpeechRecognitionResultStatus.Success)
+                {
+                    sttCompletedCallback?.Invoke(result.Text);
+                    onNotificationCallback?.Invoke("STT recognized: " + result.Text);
+                }
+                else
+                {
+                    onNotificationCallback?.Invoke("STT failed: " + result.Status);
+                }
+            }
+            catch (Exception ex)
+            {
+                onNotificationCallback?.Invoke("Error recognizing: " + ex.Message);
+            }
+#endif
         }
 
         public void StopListening()
         {
-            recognizer.RecognizeAsyncStop();
+            // Không cần cho RecognizeAsync vì nó tự dừng sau 1 lần nghe
+            onNotificationCallback?.Invoke("StopListening called, but RecognizeAsync stops automatically.");
         }
 
         public void ShutDown()
         {
+#if ENABLE_WINMD_SUPPORT && UNITY_WSA
             tts?.Dispose();
             recognizer?.Dispose();
+            mediaPlayer?.Dispose();
+#endif
         }
     }
 }
