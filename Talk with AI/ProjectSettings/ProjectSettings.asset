@@ -836,19 +836,19 @@ PlayerSettings:
   gcIncremental: 1
   gcWBarrierValidation: 0
   apiCompatibilityLevelPerPlatform: {}
-  editorAssembliesCompatibilityLevel: 1
+  editorAssembliesCompatibilityLevel: 2
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Talk with AI
-  metroPackageVersion: 
-  metroCertificatePath: 
+  metroPackageName: TalkwithAI
+  metroPackageVersion: 1.0.0.0
+  metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
-  metroCertificateSubject: 
-  metroCertificateIssuer: 
-  metroCertificateNotAfter: 0000000000000000
+  metroCertificateSubject: HyuNie Company
+  metroCertificateIssuer: HyuNie Company
+  metroCertificateNotAfter: 80ae26509540dd01
   metroApplicationDescription: Talk with AI
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: Talk with AI
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0
@@ -861,7 +861,10 @@ PlayerSettings:
   metroSplashScreenBackgroundColor: {r: 0.12941177, g: 0.17254902, b: 0.21568628, a: 1}
   metroSplashScreenUseBackgroundColor: 0
   syncCapabilities: 0
-  platformCapabilities: {}
+  platformCapabilities:
+    WindowsStoreApps:
+      InternetClient: True
+      Microphone: True
   metroTargetDeviceFamilies: {}
   metroFTAName: 
   metroFTAFileTypes: []

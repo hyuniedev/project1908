@@ -16,26 +16,28 @@ namespace Manager
 
         void Start()
         {
-            Initialize();
+            StartCoroutine(Initialize());
         }
 
         private IEnumerator Initialize()
         {
             resultTxt.text = "Hãy nói gì đó...";
-            while (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission
-                       .Microphone))
+#if UNITY_ANDROID
+            while (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Microphone))
             {
                 yield return null;
             }
-
             _communication = new CommunicationAndroid();
             _communication.Init(
-                languageCode: "vi-VN",
+                languageCode: "en-US",
                 gameObjectName: gameObject.name, 
                 sttCompletedCallback: STTCompletedCallback, 
                 ttsCompletedCallback: TTSCompletedCallback, 
                 onNotificationCallback: OnGetNotification);
             _aiConnection = new AIConnection();
+#endif
+            if(_communication==null) Debug.LogError("Not support platform");;
+            yield return null;
         }
         
         private void STTCompletedCallback(string result)
@@ -49,7 +51,7 @@ namespace Manager
             _communication.StartListening();
         }
         
-        public void OnGetNotification(string notify)
+        private void OnGetNotification(string notify)
         {
             debugTxt.text = notify;
         }

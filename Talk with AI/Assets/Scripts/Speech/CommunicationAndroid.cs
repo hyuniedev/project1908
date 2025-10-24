@@ -50,6 +50,11 @@ namespace Speech
             pluginClass.CallStatic("stopListening");
         }
 
+        public void SetLanguage(string languageCode)
+        {
+            pluginClass.CallStatic("setLanguage","languageCode");
+        }
+
         #endregion
         public void ShutDown()
         {

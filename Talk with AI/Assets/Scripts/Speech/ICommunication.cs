@@ -13,6 +13,8 @@ namespace Speech
         public void StartListening();
         public void StopListening();
         
+        public void SetLanguage(string languageCode);
+        
         public void ShutDown();
     }
 }

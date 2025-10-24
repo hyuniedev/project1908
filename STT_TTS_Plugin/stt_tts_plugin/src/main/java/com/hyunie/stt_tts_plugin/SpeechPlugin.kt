@@ -30,7 +30,7 @@ class SpeechPlugin {
 
             activity.runOnUiThread {
                 stt = SpeechRecognizer.createSpeechRecognizer(activity)
-                
+
                 stt?.setRecognitionListener(object : RecognitionListener {
                     override fun onReadyForSpeech(p0: Bundle?) {
                     }
@@ -133,6 +133,7 @@ class SpeechPlugin {
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, localCode)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 500)
                 // Make STT more responsive
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
@@ -169,6 +170,12 @@ class SpeechPlugin {
             activity.runOnUiThread {
                 tts?.stop()
             }
+        }
+
+        @JvmStatic
+        fun setLanguage(languageCode: String){
+            this.localCode = languageCode
+            tts?.setLanguage(Locale.forLanguageTag(languageCode))
         }
 
         @JvmStatic
